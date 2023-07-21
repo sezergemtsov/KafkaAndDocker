@@ -1,0 +1,43 @@
+version: "2.0"
+
+
+x-common:
+  kafka-bootstrap-servers: &kafkaconnect
+    SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9095
+
+
+services:
+
+  kafka:
+    image: kafka
+    container_name: kafka1
+    build: ./kafka
+    ports:
+      - 8085:9095
+    environment:
+      LISTENERS: PLAINTEXT://kafka:9095,CONTROLLER://:9093
+      ADVERTIZED_LISTENERS: PLAINTEXT://kafka:9095
+      
+  kafkaproducer:
+    image: kafkaproducer
+    container_name: producer
+    build: ./producer
+    ports:
+      - 8080:8080
+    depends_on:
+      - kafka
+    environment: 
+     <<: *kafkaconnect
+    
+      
+  kafkaconsumer:
+    image: kafkaconsumer
+    container_name: consumer
+    build: ./consumer
+    ports:
+      - 8081:8081
+    depends_on:
+      - kafka
+    environment: 
+     <<: *kafkaconnect
+    
